@@ -27,7 +27,7 @@ class TodoTask(models.Model):
 	@api.constrains('name')
 	def _check_name_size(self):
 		if len(self.name) < 5:
-		raise ValidationError('Must have 5 chars!')
+			raise ValidationError('Must have 5 chars!')
 
 	@api.one
 	@api.depends('stage_id.fold')
@@ -40,21 +40,33 @@ class TodoTask(models.Model):
 	def _write_stage_fold(self):
 		self.stage_id.fold = self.stage_fold
 
+	@api.one
+	def compute_user_todo_count(self):
+		self.user_todo_count = self.search_count(
+		[('user_id', '=', self.user_id.id)])
+		user_todo_count = fields.Integer(
+		'User To-Do Count',
+		compute='compute_user_todo_count')
 
 class Tags(models.Model):
 
 	_name = 'toddo.task.tag'
-	_parent_store = True
-	_parent_name = 'parent_id'
-	name = fields.Char('Name', 40, translate=True)
 
-	parent_id = fields.Many2one('toddo.task.tag','Parent Tag', ondelete='restrict')
+	#_parent_store = True
 
-	parent_left = fields.Integer('Parent Left', index=True)
-	parent_right = fields.Integer('Parent Right', index=True)
+	
 
-	child_ids = fields.One2many(
-	'todo.task.tag', 'parent_id', 'Child Tags')
+	name = fields.Char('Name')
+
+	# _parent_name = 'parent_id'
+
+	#parent_id = fields.Many2one('toddo.task.tag','Parent Tag', ondelete='restrict')
+
+	#parent_left = fields.Integer('Parent Left', index=True)
+	#parent_right = fields.Integer('Parent Right', index=True)
+
+	#child_ids = fields.One2many(
+	#'todo.task.tag', 'parent_id', 'Child Tags')
 
 
 class Stage(models.Model):
@@ -62,7 +74,7 @@ class Stage(models.Model):
 	_name = 'toddo.task.stage'
 	_order = 'sequence,name'
 	# String fields:
-	name = fields.Char('Name', 40)
+	name = fields.Char('Name')
 	desc = fields.Text('Description')
 	state = fields.Selection(
 	[('draft','New'), ('open','Started'),('done','Closed')],

@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<openerp>
+	<data>
+		<act_window id="action_todo_stage"
+			name="To-Do Task Stages"
+			res_model="toddo.task.stage"
+			view_mode="tree,form" />
+
+		<act_window id="todo-app.action_todo_task"
+		name="To-Do Tasks"
+		res_model="toddo.task"
+		view_mode="tree,form,calendar,gantt,graph"
+		target="current"
+		context="{'default_user_id': uid}"
+		domain="[]"
+		limit="80" />
+
+		<act_window id="action_todo_task_stage"
+		name="To-Do Task Stages"
+		res_model="toddo.task.stage"
+		src_model="toddo.task"
+		multi="False"/>
+
+		<menuitem id="menu_todo_task_main"
+			name="To-Do" parent="mail.mail_my_stuff" />
+
+		<menuitem id="todo-app.menu_todo_task"
+			name="To-Do Tasks"
+			parent="menu_todo_task_main"
+			sequence="10"
+			action="todo-app.action_todo_task" />
+
+		<menuitem id="menu_todo_task_stage"
+			name="To-Do Stages"
+			parent="menu_todo_task_main"
+			sequence="20"
+			action="action_todo_stage" />
+
+		<record id="view_form_todo_task_ui" model="ir.ui.view">
+
+			<field name="name">view_form_todo_task_ui</field>
+			<field name="model">toddo.task</field>
+			<field name="arch" type="xml">
+			<form>
+				<header> 
+					<field name="stage_state" invisible="True" />
+					<button name="do_toggle_done" type="object"
+					attrs="{'invisible':
+					[('stage_state','=','done')]}"
+					string="Toggle Done" class="oe_highlight" />
+					<field name="stage_id" widget="statusbar"
+					clickable="True" options="{'fold_field': 'fold'}" />
+				 </header>
+
+				<sheet> <!-- Form content --> 
+					<div class="oe_title">
+						<label for="name" class="oe_edit_only"/>
+						<h1><field name="name"/></h1>
+						<h3>
+							<span class="oe_read_only">By</span>
+							<label for="user_id" class="oe_edit_only"/>
+							<field name="user_id" class="oe_inline" />
+						</h3>
+					</div>
+					<div name="buttons" class="oe_right oe_button_box">
+						<button class="oe_stat_button"
+						type="action" icon="fa-tasks"
+						name="%(todo-app.action_todo_task)d"
+						string=""
+						context="{'search_default_user_id': user_id,
+						'default_user_id': user_id}"
+						help="Other to-dos for this user" >
+						
+						</button>
+					</div>
+
+					
+
+				</sheet>
+				<!-- History and communication: -->
+				<div class="oe_chatter">
+
+				<field name="message_follower_ids"
+				widget="mail_followers" />
+
+				<field name="message_ids"
+				widget="mail_thread" />
+
+				</div>
+			</form>
+			</field>
+		</record>
+
+		<record id="todo-app.view_tree_todo_task" model="ir.ui.view">
+			<field name="name">To-do Task Tree</field>
+			<field name="model">toddo.task</field>
+			<field name="arch" type="xml">
+				<tree editable="bottom"
+				colors="red:is_done==True"
+				fonts="italic: state!='open'" delete="false">
+					<field name="name"/>
+					<field name="user_id"/>
+				</tree>
+			</field>
+		</record>
+
+	</data>
+</openerp>
